@@ -1,10 +1,12 @@
 import html2canvas from "html2canvas";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DATA_ARRAY } from "./constant";
+import { createRssFeed } from "./axios";
 
 function RssFeed() {
   const [inputValue, setInputValue] = useState("");
   const [searchData, setSearchData] = useState([]);
+  const [data, setData] = useState([]);
 
   const getTitleFontSize = (title: string) => {
     const length = title.length;
@@ -58,7 +60,7 @@ function RssFeed() {
 
     clonedImage.style.width = "100%";
     clonedImage.style.height = "100%";
-    clonedImage.style.objectFit = "contain";
+    clonedImage.style.objectFit = "cover";
     clonedImage.style.display = "block";
 
     clonedImageContainer.appendChild(clonedImage);
@@ -89,7 +91,7 @@ function RssFeed() {
 
     const clonedUrlLogoContainer = clonedElement.querySelector("div.relative");
     const clonedUrlLogo = clonedUrlLogoContainer.querySelector("img");
-    clonedUrlLogo.style.width = "60px";
+    clonedUrlLogo.style.width = "400px";
     clonedUrlLogo.style.height = "60px";
     clonedUrlLogo.style.objectFit = "contain";
     clonedUrlLogo.style.margin = "0 auto";
@@ -131,14 +133,22 @@ function RssFeed() {
     });
   };
 
-  const handleSearch = () => {
-    const filteredData = DATA_ARRAY.filter((item) =>
-      item.urllogo.includes(inputValue)
-    );
-    setSearchData(filteredData);
+  useEffect(() => {}, []);
+
+  const handleSearch = async () => {
+    if (inputValue) {
+      try {
+        const data = await createRssFeed(inputValue);
+        setSearchData(data);
+      } catch (error) {
+        console.error("Failed to fetch RSS feed:", error);
+      }
+    } else {
+      console.error("Please enter a valid URL");
+    }
   };
 
-  const displayData = searchData?.length > 0 ? searchData : DATA_ARRAY;
+  const displayData = searchData;
 
   return (
     <>
@@ -166,28 +176,29 @@ function RssFeed() {
         </button>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 p-4 overflow-x-hidden">
-        {displayData.map((item, index) => (
+        {displayData?.map((item: any, index) => (
           <div
             key={index}
-            className="cursor-pointer rounded shadow-lg bg-black flex flex-col "
+            className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative" // Set relative positioning here
             onClick={(e) => downloadImage(e.currentTarget)}
           >
             <img
-              src={item.imageurl}
+              src={item.image}
               alt={item.title}
               className="w-full h-96 object-cover rounded-t"
             />
 
             <div className="flex items-center justify-center relative ">
               <img
-                src={item.urllogo}
+                src={item.logo}
                 alt="Logo"
-                className="h-10 w-10 object-contain absolute z-10"
+                className="h-[20px]  object-contain absolute z-10"
               />
             </div>
-            <div className="bg-gradient-to-t from-black to-transparent h-[20px] xs:w-[200px] lg:w-[295.5px] md:w-[227px] 2xl:w-[460px] absolute md:top-[495px]"></div>
 
-            <div className="flex flex-col justify-between flex-grow mt-4 p-4 overflow-hidden">
+            <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
+
+            <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
               <h2
                 className={`font-bold text-white ${getTitleFontSize(
                   item.title
@@ -195,10 +206,12 @@ function RssFeed() {
               >
                 {item.title}
               </h2>
-              <div className="mt-auto">
-                <p className="text-gray-500 text-sm mt-2">{item.date}</p>
-                <p className="text-gray-500 text-[10px] break-words">
-                  {item.urllogo}
+              <div className="mb-2">
+                <p className="text-gray-500 text-[6px]">
+                  Published On : {item.publicationDate} | Not for commercial use
+                </p>
+                <p className="text-gray-500 text-[6px] break-words">
+                  Source : {item.logo}
                 </p>
               </div>
             </div>
