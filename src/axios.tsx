@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://4495-103-249-242-26.ngrok-free.app/v1",
+  baseURL: "http://10.240.1.134:3000/v1",
 });
 
 export const createRssFeed = async (rssFeedUrl: string) => {

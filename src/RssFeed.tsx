@@ -1,12 +1,15 @@
 import html2canvas from "html2canvas";
-import { useEffect, useState } from "react";
-import { DATA_ARRAY } from "./constant";
+import { useState } from "react";
 import { createRssFeed } from "./axios";
+import Shimmer from "./atoms/Shimmer";
 
 function RssFeed() {
   const [inputValue, setInputValue] = useState("");
   const [searchData, setSearchData] = useState([]);
-  const [data, setData] = useState([]);
+  const [count, setCount] = useState(8);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const displayData = searchData;
 
   const getTitleFontSize = (title: string) => {
     const length = title.length;
@@ -54,13 +57,14 @@ function RssFeed() {
     ) as HTMLImageElement;
     const clonedImageContainer = document.createElement("div");
     clonedImageContainer.style.position = "relative";
-    clonedImageContainer.style.width = "100%";
-    clonedImageContainer.style.height = "70%";
+    clonedImageContainer.style.width = "138%";
+    clonedImageContainer.style.height = "62%";
+    clonedImageContainer.style.marginLeft = "-90px";
     clonedImageContainer.style.overflow = "hidden";
 
     clonedImage.style.width = "100%";
     clonedImage.style.height = "100%";
-    clonedImage.style.objectFit = "cover";
+    clonedImage.style.objectFit = "contain";
     clonedImage.style.display = "block";
 
     clonedImageContainer.appendChild(clonedImage);
@@ -73,7 +77,7 @@ function RssFeed() {
     gradientOverlay.style.width = "100%";
     gradientOverlay.style.height = "10%";
     gradientOverlay.style.background =
-      "linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))";
+      "linear-gradient(to top, rgba(0, 0, 0, 10), rgba(0, 0, 0, 0))";
     gradientOverlay.style.zIndex = "1";
     clonedImageContainer.appendChild(gradientOverlay);
 
@@ -92,21 +96,21 @@ function RssFeed() {
     const clonedUrlLogoContainer = clonedElement.querySelector("div.relative");
     const clonedUrlLogo = clonedUrlLogoContainer.querySelector("img");
     clonedUrlLogo.style.width = "400px";
-    clonedUrlLogo.style.height = "60px";
+    clonedUrlLogo.style.height = "100px";
     clonedUrlLogo.style.objectFit = "contain";
     clonedUrlLogo.style.margin = "0 auto";
     clonedUrlLogo.style.position = "absolute";
     clonedUrlLogo.style.zIndex = "10";
 
     const clonedDate = clonedElement.querySelector("p:nth-of-type(1)");
-    clonedDate.style.fontSize = "32px";
+    clonedDate.style.fontSize = "10px";
     clonedDate.style.marginTop = "auto";
-    clonedDate.style.padding = "10px 20px 20px 20px";
+    clonedDate.style.padding = "10px 20px 0px 20px";
 
     const clonedUrl = clonedElement.querySelector("p:nth-of-type(2)");
-    clonedUrl.style.fontSize = "20px";
+    clonedUrl.style.fontSize = "10px";
     clonedUrl.style.marginTop = "auto";
-    clonedUrl.style.padding = "10px 20px 20px 20px";
+    clonedUrl.style.padding = "5px 20px 10px 20px";
 
     const gradientLine = clonedElement.querySelector(".bg-gradient-to-t");
     if (gradientLine) {
@@ -117,7 +121,7 @@ function RssFeed() {
       useCORS: true,
       width: 1080,
       height: 1920,
-      scale: 2,
+      scale: 1,
       backgroundColor: null,
     }).then((canvas) => {
       const link = document.createElement("a");
@@ -133,22 +137,22 @@ function RssFeed() {
     });
   };
 
-  useEffect(() => {}, []);
-
   const handleSearch = async () => {
     if (inputValue) {
+      setIsLoading(true);
       try {
         const data = await createRssFeed(inputValue);
         setSearchData(data);
+        setCount(8);
       } catch (error) {
         console.error("Failed to fetch RSS feed:", error);
+      } finally {
+        setIsLoading(false);
       }
     } else {
       console.error("Please enter a valid URL");
     }
   };
-
-  const displayData = searchData;
 
   return (
     <>
@@ -169,55 +173,96 @@ function RssFeed() {
           Search
         </button>
         <button
-          onClick={() => setInputValue("")}
+          onClick={() => {
+            setInputValue("");
+            setCount(0);
+          }}
           className="mx-4 bg-red-400 px-4 py-2 rounded-lg text-white font-medium"
         >
           Clear
         </button>
       </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 p-4 overflow-x-hidden">
-        {displayData?.map((item: any, index) => (
-          <div
-            key={index}
-            className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative" // Set relative positioning here
-            onClick={(e) => downloadImage(e.currentTarget)}
-          >
-            <img
-              src={item.image}
-              alt={item.title}
-              className="w-full h-96 object-cover rounded-t"
-            />
-
-            <div className="flex items-center justify-center relative ">
-              <img
-                src={item.logo}
-                alt="Logo"
-                className="h-[20px]  object-contain absolute z-10"
-              />
-            </div>
-
-            <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
-
-            <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
-              <h2
-                className={`font-bold text-white ${getTitleFontSize(
-                  item.title
-                )}`}
+        {isLoading
+          ? Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative"
               >
-                {item.title}
-              </h2>
-              <div className="mb-2">
-                <p className="text-gray-500 text-[6px]">
-                  Published On : {item.publicationDate} | Not for commercial use
-                </p>
-                <p className="text-gray-500 text-[6px] break-words">
-                  Source : {item.logo}
-                </p>
+                <Shimmer className="w-full h-96 bg-gray-200 rounded-t animate-pulse" />
+                <div className="flex items-center justify-center relative ">
+                  <Shimmer className="h-[20px] w-[80px] bg-gray-200 rounded-md bottom-[22px] animate-pulse absolute z-10" />
+                </div>
+                <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
+                <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
+                  <Shimmer className="w-full h-6 bg-gray-200 rounded-md animate-pulse" />
+                  <div className="mb-2">
+                    <Shimmer className="w-1/2 h-2 bg-gray-200 rounded-md  mt-2 animate-pulse" />
+                    <Shimmer className="w-1/3 h-2 rounded-md bg-gray-200  mt-2 animate-pulse" />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            ))
+          : displayData?.slice(0, count).map((item: any, index) => (
+              <div
+                key={index}
+                className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative"
+                onClick={(e) => downloadImage(e.currentTarget)}
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-96 object-cover rounded-t"
+                />
+                <div className="flex items-center justify-center relative ">
+                  <img
+                    src={item.logo}
+                    alt="Logo"
+                    className="h-[20px] object-contain absolute z-10"
+                  />
+                </div>
+                <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
+                <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
+                  <h2
+                    className={`font-bold text-white ${getTitleFontSize(
+                      item.title
+                    )}`}
+                  >
+                    {item.title}
+                  </h2>
+                  <div className="mb-2">
+                    <p className="text-gray-500 text-[6px]">
+                      Published On : {item.publicationDate} | Not for commercial
+                      use
+                    </p>
+                    <p className="text-gray-500 text-[6px] break-words">
+                      Source : {item.logo}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
       </div>
+      {displayData?.length > 0 && count !== 0 && (
+        <div className="mb-4 flex justify-center mx-4 ">
+          <button
+            onClick={() => {
+              count < displayData.length && setCount(count + 8);
+            }}
+            disabled={count >= displayData.length}
+            className={`bg-teal-400 py-2 px-4 rounded-lg text-white font-semibold ${
+              count >= displayData.length
+                ? "cursor-not-allowed opacity-50"
+                : "cursor-pointer"
+            }`}
+          >
+            {count >= displayData.length
+              ? "No More Feeds Available"
+              : "Load More"}
+          </button>
+        </div>
+      )}
     </>
   );
 }
