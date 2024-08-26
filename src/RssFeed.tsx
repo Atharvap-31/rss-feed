@@ -1,5 +1,5 @@
 import html2canvas from "html2canvas";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createRssFeed } from "./axios";
 import Shimmer from "./atoms/Shimmer";
 
@@ -25,13 +25,14 @@ function RssFeed() {
   const downloadImage = (element: any) => {
     const getTitleFontSizeInPX = (title: string) => {
       const length = title.length;
-      if (length > 100) return "40px";
-      if (length > 75) return "44px";
-      if (length > 50) return "55px";
-      if (length < 50) return "60px";
-      if (length < 30) return "80px";
-      if (length < 15) return "100px";
-      return "32px";
+
+      if (length > 100) return "60px";
+      if (length > 75) return "90px";
+      if (length > 70) return "100px";
+      if (length >= 50) return "102px";
+      if (length >= 30) return "115px";
+      if (length >= 15) return "110px";
+      return "150px";
     };
 
     const offscreenElement = document.createElement("div");
@@ -59,7 +60,7 @@ function RssFeed() {
     clonedImageContainer.style.position = "relative";
     clonedImageContainer.style.width = "138%";
     clonedImageContainer.style.height = "62%";
-    clonedImageContainer.style.marginLeft = "-90px";
+    clonedImageContainer.style.marginLeft = "-150px";
     clonedImageContainer.style.overflow = "hidden";
 
     clonedImage.style.width = "100%";
@@ -95,8 +96,8 @@ function RssFeed() {
 
     const clonedUrlLogoContainer = clonedElement.querySelector("div.relative");
     const clonedUrlLogo = clonedUrlLogoContainer.querySelector("img");
-    clonedUrlLogo.style.width = "400px";
-    clonedUrlLogo.style.height = "100px";
+    // clonedUrlLogo.style.width = "400px";
+    clonedUrlLogo.style.height = "80px";
     clonedUrlLogo.style.objectFit = "contain";
     clonedUrlLogo.style.margin = "0 auto";
     clonedUrlLogo.style.position = "absolute";
@@ -175,7 +176,7 @@ function RssFeed() {
         <button
           onClick={() => {
             setInputValue("");
-            setCount(0);
+            setSearchData([]);
           }}
           className="mx-4 bg-red-400 px-4 py-2 rounded-lg text-white font-medium"
         >
@@ -184,65 +185,71 @@ function RssFeed() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 p-4 overflow-x-hidden">
-        {isLoading
-          ? Array.from({ length: 8 }).map((_, index) => (
-              <div
-                key={index}
-                className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative"
-              >
-                <Shimmer className="w-full h-96 bg-gray-200 rounded-t animate-pulse" />
-                <div className="flex items-center justify-center relative ">
-                  <Shimmer className="h-[20px] w-[80px] bg-gray-200 rounded-md bottom-[22px] animate-pulse absolute z-10" />
-                </div>
-                <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
-                <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
-                  <Shimmer className="w-full h-6 bg-gray-200 rounded-md animate-pulse" />
-                  <div className="mb-2">
-                    <Shimmer className="w-1/2 h-2 bg-gray-200 rounded-md  mt-2 animate-pulse" />
-                    <Shimmer className="w-1/3 h-2 rounded-md bg-gray-200  mt-2 animate-pulse" />
-                  </div>
+        {isLoading ? (
+          Array.from({ length: 8 }).map((_, index) => (
+            <div
+              key={index}
+              className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative"
+            >
+              <Shimmer className="w-full h-96 bg-gray-200 rounded-t animate-pulse" />
+              <div className="flex items-center justify-center relative ">
+                <Shimmer className="h-[20px] w-[80px] bg-gray-200 rounded-md bottom-[22px] animate-pulse absolute z-10" />
+              </div>
+              <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
+              <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
+                <Shimmer className="w-full h-6 bg-gray-200 rounded-md animate-pulse" />
+                <div className="mb-2">
+                  <Shimmer className="w-1/2 h-2 bg-gray-200 rounded-md  mt-2 animate-pulse" />
+                  <Shimmer className="w-1/3 h-2 rounded-md bg-gray-200  mt-2 animate-pulse" />
                 </div>
               </div>
-            ))
-          : displayData?.slice(0, count).map((item: any, index) => (
-              <div
-                key={index}
-                className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative"
-                onClick={(e) => downloadImage(e.currentTarget)}
-              >
+            </div>
+          ))
+        ) : displayData.length > 0 ? (
+          displayData?.slice(0, count).map((item: any, index) => (
+            <div
+              key={index}
+              className="cursor-pointer rounded shadow-lg bg-black flex flex-col relative"
+              onClick={(e) => downloadImage(e.currentTarget)}
+            >
+              <img
+                src={item.image}
+                alt={item.title}
+                className="w-full h-96 object-cover rounded-t"
+              />
+              <div className="flex items-center justify-center relative ">
                 <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-96 object-cover rounded-t"
+                  src={item.logo}
+                  alt="Logo"
+                  className="h-[20px] object-contain absolute z-10"
                 />
-                <div className="flex items-center justify-center relative ">
-                  <img
-                    src={item.logo}
-                    alt="Logo"
-                    className="h-[20px] object-contain absolute z-10"
-                  />
-                </div>
-                <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
-                <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
-                  <h2
-                    className={`font-bold text-white ${getTitleFontSize(
-                      item.title
-                    )}`}
-                  >
-                    {item.title}
-                  </h2>
-                  <div className="mb-2">
-                    <p className="text-gray-500 text-[6px]">
-                      Published On : {item.publicationDate} | Not for commercial
-                      use
-                    </p>
-                    <p className="text-gray-500 text-[6px] break-words">
-                      Source : {item.logo}
-                    </p>
-                  </div>
+              </div>
+              <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
+              <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
+                <h2
+                  className={`font-bold text-white ${getTitleFontSize(
+                    item.title
+                  )}`}
+                >
+                  {item.title}
+                </h2>
+                <div className="mb-2">
+                  <p className="text-gray-500 text-[6px]">
+                    Published On : {item.publicationDate} | Not for commercial
+                    use
+                  </p>
+                  <p className="text-gray-500 text-[6px] break-words">
+                    Source : {item.logo}
+                  </p>
                 </div>
               </div>
-            ))}
+            </div>
+          ))
+        ) : (
+          <div className="flex justify-center items-center xs:w-[500px] sm:w-[800px] lg:w-[1250px] 2xl:w-[1900px]  my-12">
+            <p className="text-3xl font-bold text-red-600">No Data Available</p>
+          </div>
+        )}
       </div>
       {displayData?.length > 0 && count !== 0 && (
         <div className="mb-4 flex justify-center mx-4 ">
