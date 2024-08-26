@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap");
+
 @layer utilities {
   @keyframes shimmer {
     0% {
@@ -28,6 +30,34 @@
     animation: shimmer 1s ease-in-out infinite;
   }
 }
+
+:root {
+  --min-font-size: 1rem; /* Minimum font size */
+  --preferred-font-size: 2vw; /* Preferred font size based on viewport width */
+  --max-font-size: 2rem; /* Maximum font size */
+}
+
+/* Example font size clamping */
+.font-clamp {
+  font-size: clamp(
+    var(--min-font-size),
+    var(--preferred-font-size),
+    var(--max-font-size)
+  );
+}
+
+.font-clamp-small {
+  font-size: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.font-clamp-medium {
+  font-size: clamp(1rem, 2vw, 2rem);
+}
+
+.font-clamp-large {
+  font-size: clamp(1.5rem, 3vw, 3rem);
+}
+
 /* const downloadImage = (element: any) => {
     const getTitleFontSizeInPX = (title: string) => {
       const length = title.length;

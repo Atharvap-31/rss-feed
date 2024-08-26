@@ -1,7 +1,8 @@
 import html2canvas from "html2canvas";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createRssFeed } from "./axios";
 import Shimmer from "./atoms/Shimmer";
+import "./index.css";
 
 function RssFeed() {
   const [inputValue, setInputValue] = useState("");
@@ -26,12 +27,12 @@ function RssFeed() {
     const getTitleFontSizeInPX = (title: string) => {
       const length = title.length;
 
-      if (length > 100) return "60px";
+      if (length > 100) return "70px";
       if (length > 75) return "90px";
       if (length > 70) return "100px";
       if (length >= 50) return "102px";
       if (length >= 30) return "115px";
-      if (length >= 15) return "110px";
+      if (length >= 15) return "120px";
       return "150px";
     };
 
@@ -73,12 +74,12 @@ function RssFeed() {
 
     const gradientOverlay = document.createElement("div");
     gradientOverlay.style.position = "absolute";
-    gradientOverlay.style.bottom = "-0.1%";
+    gradientOverlay.style.bottom = "0%";
     gradientOverlay.style.left = "0";
     gradientOverlay.style.width = "100%";
-    gradientOverlay.style.height = "10%";
+    gradientOverlay.style.height = "12%";
     gradientOverlay.style.background =
-      "linear-gradient(to top, rgba(0, 0, 0, 10), rgba(0, 0, 0, 0))";
+      "linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))";
     gradientOverlay.style.zIndex = "1";
     clonedImageContainer.appendChild(gradientOverlay);
 
@@ -89,6 +90,7 @@ function RssFeed() {
 
       clonedTitle.style.fontSize = fontSize;
       clonedTitle.style.padding = "20px";
+      clonedTitle.style.fontFamily = "Poppins, sans-serif";
       clonedTitle.style.lineHeight = "1.2";
       clonedTitle.style.position = "relative";
       clonedTitle.style.zIndex = "2";
@@ -227,18 +229,18 @@ function RssFeed() {
               <div className="col-span-4 bg-gradient-to-t from-black to-transparent h-[20px] w-full absolute top-[364px]"></div>
               <div className="flex flex-col justify-between flex-grow mt-4 px-4 overflow-hidden">
                 <h2
-                  className={`font-bold text-white ${getTitleFontSize(
+                  className={`font-bold text-[#c1c1c1]  ${getTitleFontSize(
                     item.title
                   )}`}
                 >
                   {item.title}
                 </h2>
                 <div className="mb-2">
-                  <p className="text-gray-500 text-[6px]">
+                  <p className="text-[#555050] text-[6px]">
                     Published On : {item.publicationDate} | Not for commercial
                     use
                   </p>
-                  <p className="text-gray-500 text-[6px] break-words">
+                  <p className="text-[#555050] text-[6px] break-words">
                     Source : {item.logo}
                   </p>
                 </div>
